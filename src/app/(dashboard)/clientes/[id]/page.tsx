@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/table";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { DeleteClientButton } from "@/components/clients/DeleteClientButton";
+import { AddressManager } from "@/components/clients/AddressManager";
 import { formatCurrency, formatDate, clientFullName } from "@/lib/format";
 import { calculateBalance } from "@/lib/calculations";
 import type { Budget, Payment } from "@/types";
@@ -34,6 +35,12 @@ export default async function ClienteDetailPage({
 
   const { data: client } = await supabase.from("clients").select("*").eq("id", id).single();
   if (!client) notFound();
+
+  const { data: addressesData } = await supabase
+    .from("client_addresses")
+    .select("*")
+    .eq("client_id", id)
+    .order("created_at");
 
   const { data: budgetsData } = await supabase
     .from("budgets")
@@ -77,6 +84,15 @@ export default async function ClienteDetailPage({
               <Field label="Notas" value={client.notes} />
             </div>
           </dl>
+        </CardContent>
+      </Card>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Direcciones</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <AddressManager clientId={id} addresses={addressesData ?? []} />
         </CardContent>
       </Card>
 

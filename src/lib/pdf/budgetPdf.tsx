@@ -5,7 +5,7 @@ import {
   Text,
   StyleSheet,
 } from "@react-pdf/renderer";
-import type { Budget, BudgetItem, Client, Payment } from "@/types";
+import type { Budget, BudgetItem, Client, Payment, ClientAddress } from "@/types";
 import { BUDGET_STATUS_META, PAYMENT_STATUS_META } from "@/constants/statuses";
 
 const ORANGE = "#f59e0b";
@@ -46,9 +46,10 @@ export interface BudgetPdfData {
   client: Client;
   items: BudgetItem[];
   payments: Payment[];
+  address?: ClientAddress | null;
 }
 
-export function BudgetPdf({ budget, client, items, payments }: BudgetPdfData) {
+export function BudgetPdf({ budget, client, items, payments, address }: BudgetPdfData) {
   const paid = payments.reduce((sum, p) => sum + Number(p.amount), 0);
   const balance = Math.max(0, Number(budget.total) - paid);
 
@@ -84,6 +85,12 @@ export function BudgetPdf({ budget, client, items, payments }: BudgetPdfData) {
               {client.address ? <Text style={s.muted}>{client.address}{client.city ? `, ${client.city}` : ""}</Text> : null}
             </View>
           </View>
+          {address ? (
+            <Text style={{ marginTop: 4 }}>
+              <Text style={s.muted}>Obra / Dirección: </Text>
+              {address.label ? `${address.label} — ` : ""}{address.address}{address.city ? `, ${address.city}` : ""}
+            </Text>
+          ) : null}
         </View>
 
         {budget.notes ? (

@@ -40,6 +40,18 @@ export type Budget = {
   total: number;
   notes: string | null;
   is_demo: boolean;
+  address_id: string | null;
+};
+
+export type ClientAddress = {
+  id: string;
+  client_id: string;
+  label: string | null;
+  address: string;
+  city: string | null;
+  province: string | null;
+  notes: string | null;
+  created_at: string;
 };
 
 export type BudgetItem = {

@@ -42,6 +42,10 @@ export default async function PresupuestoDetailPage({
 
   const items = (itemsData ?? []) as BudgetItem[];
   const payments = (paymentsData ?? []) as Payment[];
+
+  const { data: address } = budget.address_id
+    ? await supabase.from("client_addresses").select("*").eq("id", budget.address_id).single()
+    : { data: null };
   const paid = payments.reduce((s, p) => s + Number(p.amount), 0);
   const balance = calculateBalance(Number(budget.total), paid);
 
@@ -169,6 +173,13 @@ export default async function PresupuestoDetailPage({
               {client.tax_id && <p className="text-muted">CUIT/DNI: {client.tax_id}</p>}
               {client.phone && <p className="text-muted">{client.phone}</p>}
               {client.email && <p className="text-muted">{client.email}</p>}
+              {address && (
+                <p className="mt-2 border-t border-border pt-2">
+                  <span className="text-muted">Obra / Dirección: </span>
+                  {address.label ? `${address.label} — ` : ""}{address.address}
+                  {address.city ? `, ${address.city}` : ""}
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>

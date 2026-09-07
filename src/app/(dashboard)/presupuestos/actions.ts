@@ -57,8 +57,14 @@ export async function createBudget(input: BudgetInput): Promise<ActionResult> {
   });
 
   if (error) return { ok: false, error: error.message };
+
+  const newId = data as string;
+  if (parsed.data.address_id) {
+    await supabase.from("budgets").update({ address_id: parsed.data.address_id }).eq("id", newId);
+  }
+
   revalidatePath("/presupuestos");
-  return { ok: true, id: data as string };
+  return { ok: true, id: newId };
 }
 
 export async function updateBudget(id: string, input: BudgetInput): Promise<ActionResult> {
@@ -83,6 +89,9 @@ export async function updateBudget(id: string, input: BudgetInput): Promise<Acti
   });
 
   if (error) return { ok: false, error: error.message };
+
+  await supabase.from("budgets").update({ address_id: parsed.data.address_id ?? null }).eq("id", id);
+
   revalidatePath("/presupuestos");
   revalidatePath(`/presupuestos/${id}`);
   return { ok: true, id };

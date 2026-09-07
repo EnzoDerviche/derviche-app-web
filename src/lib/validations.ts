@@ -32,6 +32,16 @@ export const clientSchema = z.object({
 
 export type ClientInput = z.infer<typeof clientSchema>;
 
+export const addressSchema = z.object({
+  label: optionalText,
+  address: z.string().trim().min(1, "La dirección es obligatoria"),
+  city: optionalText,
+  province: optionalText,
+  notes: optionalText,
+});
+
+export type AddressInput = z.infer<typeof addressSchema>;
+
 export const budgetItemSchema = z.object({
   description: z.string().trim().min(1, "La descripción es obligatoria"),
   quantity: z.coerce.number().positive("La cantidad debe ser mayor a 0"),
@@ -44,6 +54,7 @@ export type BudgetItemInput = z.infer<typeof budgetItemSchema>;
 
 export const budgetSchema = z.object({
   client_id: z.string().uuid("Seleccioná un cliente"),
+  address_id: optionalText,
   status: z.enum(BUDGET_STATUSES).default("sent"),
   discount: z.coerce.number().min(0).default(0),
   tax_rate: z.coerce.number().min(0).default(0),

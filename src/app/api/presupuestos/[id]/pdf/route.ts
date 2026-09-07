@@ -33,8 +33,13 @@ export async function GET(
   }
 
   const { client, ...budgetRow } = budget as unknown as Budget & { client: Client };
+
+  const { data: address } = budgetRow.address_id
+    ? await supabase.from("client_addresses").select("*").eq("id", budgetRow.address_id).single()
+    : { data: null };
+
   const buffer = await renderToBuffer(
-    BudgetPdf({ budget: budgetRow, client, items: items ?? [], payments: payments ?? [] }),
+    BudgetPdf({ budget: budgetRow, client, items: items ?? [], payments: payments ?? [], address }),
   );
 
   return new NextResponse(new Uint8Array(buffer), {

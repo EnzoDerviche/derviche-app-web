@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient as createServerClient } from "@/lib/supabase/server";
-import { clientSchema, type ClientInput } from "@/lib/validations";
+import { clientSchema, addressSchema, type ClientInput, type AddressInput } from "@/lib/validations";
 
 export type ActionResult = { ok: true; id?: string } | { ok: false; error: string };
 
@@ -65,5 +65,35 @@ export async function deleteClientRecord(id: string): Promise<ActionResult> {
   const { error } = await supabase.from("clients").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };
   revalidatePath("/clientes");
+  return { ok: true };
+}
+
+// ── Direcciones del cliente (varias, ej. administrador de edificios) ──────────
+
+export async function createAddress(
+  clientId: string,
+  input: AddressInput,
+): Promise<ActionResult> {
+  const parsed = addressSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Datos inválidos" };
+
+  const supabase = await requireAuth();
+  const { error } = await supabase
+    .from("client_addresses")
+    .insert({ client_id: clientId, ...parsed.data });
+
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/clientes/${clientId}`);
+  return { ok: true };
+}
+
+export async function deleteAddress(
+  addressId: string,
+  clientId: string,
+): Promise<ActionResult> {
+  const supabase = await requireAuth();
+  const { error } = await supabase.from("client_addresses").delete().eq("id", addressId);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/clientes/${clientId}`);
   return { ok: true };
 }

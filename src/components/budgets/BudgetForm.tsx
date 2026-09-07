@@ -24,6 +24,7 @@ type FormValues = z.input<typeof budgetSchema>;
 
 interface Props {
   clients: { id: string; label: string }[];
+  addressesByClient: Record<string, { id: string; label: string }[]>;
   budget?: Budget;
   items?: BudgetItem[];
   defaultClientId?: string;
@@ -65,7 +66,7 @@ function Row({ label, value, bold }: { label: string; value: string; bold?: bool
   );
 }
 
-export function BudgetForm({ clients, budget, items, defaultClientId }: Props) {
+export function BudgetForm({ clients, addressesByClient, budget, items, defaultClientId }: Props) {
   const router = useRouter();
   const {
     register,
@@ -77,6 +78,7 @@ export function BudgetForm({ clients, budget, items, defaultClientId }: Props) {
     resolver: zodResolver(budgetSchema),
     defaultValues: {
       client_id: budget?.client_id ?? defaultClientId ?? "",
+      address_id: budget?.address_id ?? "",
       status: budget?.status ?? "sent",
       discount: budget?.discount ?? 0,
       tax_rate: budget && budget.tax > 0 && budget.subtotal > budget.discount
@@ -101,6 +103,8 @@ export function BudgetForm({ clients, budget, items, defaultClientId }: Props) {
   const { fields, append, remove, move } = useFieldArray({ control, name: "items" });
   const [showDiscount, setShowDiscount] = useState(!!(budget && budget.discount > 0));
   const [showTax, setShowTax] = useState(!!(budget && budget.tax > 0));
+  const selectedClientId = useWatch({ control, name: "client_id" }) as string;
+  const addresses = addressesByClient[selectedClientId] ?? [];
 
   async function onSubmit(values: FormValues) {
     const input = values as BudgetInput;
@@ -131,6 +135,17 @@ export function BudgetForm({ clients, budget, items, defaultClientId }: Props) {
               ))}
             </Select>
             {errors.client_id && <p className="mt-1 text-xs text-red-600">{errors.client_id.message}</p>}
+          </div>
+          <div>
+            <Label htmlFor="address_id">Dirección</Label>
+            <Select id="address_id" {...register("address_id")} disabled={addresses.length === 0}>
+              <option value="">
+                {addresses.length === 0 ? "El cliente no tiene direcciones" : "Sin dirección específica"}
+              </option>
+              {addresses.map((a) => (
+                <option key={a.id} value={a.id}>{a.label}</option>
+              ))}
+            </Select>
           </div>
           <div>
             <Label htmlFor="status">Estado</Label>
