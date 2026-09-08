@@ -6,7 +6,7 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer";
 import type { Budget, BudgetItem, Client, Payment, ClientAddress } from "@/types";
-import { BUDGET_STATUS_META, PAYMENT_STATUS_META } from "@/constants/statuses";
+import { PAYMENT_STATUS_META } from "@/constants/statuses";
 
 const ORANGE = "#f59e0b";
 const DARK = "#1c1917";
@@ -66,8 +66,6 @@ export function BudgetPdf({ budget, client, items, payments, address }: BudgetPd
           <View>
             <Text style={s.docTitle}>{budget.budget_number}</Text>
             <Text style={[s.muted, { textAlign: "right" }]}>Fecha: {date(budget.created_at)}</Text>
-            <Text style={[s.muted, { textAlign: "right" }]}>Envío: {date(budget.sent_at)}</Text>
-            <Text style={[s.muted, { textAlign: "right" }]}>Estado: {BUDGET_STATUS_META[budget.status].label}</Text>
           </View>
         </View>
 
@@ -75,7 +73,7 @@ export function BudgetPdf({ budget, client, items, payments, address }: BudgetPd
           <Text style={s.sectionTitle}>Cliente</Text>
           <View style={s.row}>
             <View style={s.col2}>
-              <Text>{client.first_name} {client.last_name}</Text>
+              <Text style={{ fontFamily: "Helvetica-Bold" }}>{client.first_name} {client.last_name}</Text>
               {client.company ? <Text style={s.muted}>{client.company}</Text> : null}
               {client.tax_id ? <Text style={s.muted}>CUIT/DNI: {client.tax_id}</Text> : null}
             </View>
@@ -87,8 +85,8 @@ export function BudgetPdf({ budget, client, items, payments, address }: BudgetPd
           </View>
           {address ? (
             <Text style={{ marginTop: 4 }}>
-              <Text style={s.muted}>Obra / Dirección: </Text>
-              {address.label ? `${address.label} — ` : ""}{address.address}{address.city ? `, ${address.city}` : ""}
+              <Text style={s.muted}>Dirección: </Text>
+              {address.address}{address.city ? `, ${address.city}` : ""}
             </Text>
           ) : null}
         </View>

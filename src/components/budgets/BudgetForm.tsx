@@ -96,7 +96,7 @@ export function BudgetForm({ clients, addressesByClient, budget, items, defaultC
               unit_price: i.unit_price,
               discount: i.discount,
             }))
-          : [{ description: "", quantity: 1, unit: "unidad", unit_price: 0, discount: 0 }],
+          : [{ description: "Mano de obra", quantity: 1, unit: "global", unit_price: 0, discount: 0 }],
     },
   });
 
@@ -193,6 +193,7 @@ export function BudgetForm({ clients, addressesByClient, budget, items, defaultC
                 index={i}
                 control={control}
                 register={register}
+                setValue={setValue}
                 onRemove={() => remove(i)}
                 onUp={() => i > 0 && move(i, i - 1)}
                 onDown={() => i < fields.length - 1 && move(i, i + 1)}
@@ -269,6 +270,7 @@ function ItemRow({
   index,
   control,
   register,
+  setValue,
   onRemove,
   onUp,
   onDown,
@@ -277,17 +279,22 @@ function ItemRow({
   index: number;
   control: Control<FormValues>;
   register: ReturnType<typeof useForm<FormValues>>["register"];
+  setValue: ReturnType<typeof useForm<FormValues>>["setValue"];
   onRemove: () => void;
   onUp: () => void;
   onDown: () => void;
   errors?: { description?: { message?: string }; quantity?: { message?: string }; unit_price?: { message?: string } };
 }) {
   const item = useWatch({ control, name: `items.${index}` });
+  // A "global" line is a lump sum: only a price (quantity forced to 1, no discount).
+  const isGlobal = item?.unit === "global";
   const subtotal = calculateItemSubtotal({
-    quantity: Number(item?.quantity) || 0,
+    quantity: isGlobal ? 1 : Number(item?.quantity) || 0,
     unit_price: Number(item?.unit_price) || 0,
-    discount: Number(item?.discount) || 0,
+    discount: isGlobal ? 0 : Number(item?.discount) || 0,
   });
+
+  const unitReg = register(`items.${index}.unit`);
 
   return (
     <div className="rounded-md border border-border p-3">
@@ -296,26 +303,39 @@ function ItemRow({
           <Label className="text-xs">Descripción</Label>
           <Input {...register(`items.${index}.description`)} placeholder="Descripción del item" />
         </div>
-        <div className="w-24">
-          <Label className="text-xs">Cantidad</Label>
-          <Input type="number" step="0.001" min="0" {...register(`items.${index}.quantity`)} />
-        </div>
+        {!isGlobal && (
+          <div className="w-24">
+            <Label className="text-xs">Cantidad</Label>
+            <Input type="number" step="0.001" min="0" {...register(`items.${index}.quantity`)} />
+          </div>
+        )}
         <div className="w-28">
           <Label className="text-xs">Unidad</Label>
-          <Select {...register(`items.${index}.unit`)}>
+          <Select
+            {...unitReg}
+            onChange={(e) => {
+              unitReg.onChange(e);
+              if (e.target.value === "global") {
+                setValue(`items.${index}.quantity`, 1);
+                setValue(`items.${index}.discount`, 0);
+              }
+            }}
+          >
             {UNITS.map((u) => (
               <option key={u} value={u}>{u}</option>
             ))}
           </Select>
         </div>
         <div className="w-28">
-          <Label className="text-xs">P. unitario</Label>
+          <Label className="text-xs">{isGlobal ? "Precio" : "P. unitario"}</Label>
           <Input type="number" step="0.01" min="0" {...register(`items.${index}.unit_price`)} />
         </div>
-        <div className="w-24">
-          <Label className="text-xs">Descuento</Label>
-          <Input type="number" step="0.01" min="0" {...register(`items.${index}.discount`)} />
-        </div>
+        {!isGlobal && (
+          <div className="w-24">
+            <Label className="text-xs">Descuento</Label>
+            <Input type="number" step="0.01" min="0" {...register(`items.${index}.discount`)} />
+          </div>
+        )}
         <div className="flex items-center gap-1 pb-0.5">
           <Button type="button" variant="ghost" size="icon" onClick={onUp} aria-label="Subir"><ArrowUp className="size-4" /></Button>
           <Button type="button" variant="ghost" size="icon" onClick={onDown} aria-label="Bajar"><ArrowDown className="size-4" /></Button>

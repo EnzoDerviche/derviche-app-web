@@ -18,13 +18,9 @@ type FormValues = z.input<typeof clientSchema>;
 const FIELDS: { name: keyof FormValues; label: string; type?: string }[] = [
   { name: "first_name", label: "Nombre *" },
   { name: "last_name", label: "Apellido *" },
-  { name: "company", label: "Empresa" },
   { name: "tax_id", label: "DNI / CUIT" },
   { name: "phone", label: "Teléfono" },
   { name: "email", label: "Email", type: "email" },
-  { name: "address", label: "Dirección" },
-  { name: "city", label: "Localidad" },
-  { name: "province", label: "Provincia" },
 ];
 
 export function ClientForm({ client }: { client?: Client }) {

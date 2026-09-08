@@ -15,6 +15,12 @@ export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 10;
 
+function formatAddresses(addrs: { label: string | null; address: string }[] | null): string {
+  if (!addrs || addrs.length === 0) return "—";
+  const first = addrs[0].label || addrs[0].address;
+  return addrs.length > 1 ? `${first} +${addrs.length - 1}` : first;
+}
+
 type SearchParams = Promise<{ q?: string; page?: string }>;
 
 export default async function ClientesPage({
@@ -29,7 +35,7 @@ export default async function ClientesPage({
   const supabase = await createClient();
   let query = supabase
     .from("clients")
-    .select("*, budgets(count)", { count: "exact" })
+    .select("*, budgets(count), client_addresses(label, address)", { count: "exact" })
     .order("created_at", { ascending: false })
     .range(from, from + PAGE_SIZE - 1);
 
@@ -72,9 +78,9 @@ export default async function ClientesPage({
             <THead>
               <TR>
                 <TH>Nombre</TH>
-                <TH>Empresa</TH>
+                <TH>Dirección</TH>
                 <TH>Teléfono</TH>
-                <TH>Email</TH>
+                <TH>CUIT / DNI</TH>
                 <TH className="text-right">Presupuestos</TH>
               </TR>
             </THead>
@@ -86,9 +92,9 @@ export default async function ClientesPage({
                       {clientFullName(c)}
                     </Link>
                   </TD>
-                  <TD>{c.company ?? "—"}</TD>
+                  <TD>{formatAddresses(c.client_addresses as unknown as { label: string | null; address: string }[] | null)}</TD>
                   <TD>{c.phone ?? "—"}</TD>
-                  <TD>{c.email ?? "—"}</TD>
+                  <TD>{c.tax_id ?? "—"}</TD>
                   <TD className="text-right">
                     {(c.budgets as unknown as { count: number }[] | null)?.[0]?.count ?? 0}
                   </TD>

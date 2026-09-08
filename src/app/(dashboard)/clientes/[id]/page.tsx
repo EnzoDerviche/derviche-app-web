@@ -77,9 +77,6 @@ export default async function ClienteDetailPage({
             <Field label="DNI / CUIT" value={client.tax_id} />
             <Field label="Teléfono" value={client.phone} />
             <Field label="Email" value={client.email} />
-            <Field label="Dirección" value={client.address} />
-            <Field label="Localidad" value={client.city} />
-            <Field label="Provincia" value={client.province} />
             <div className="sm:col-span-2 lg:col-span-3">
               <Field label="Notas" value={client.notes} />
             </div>
