@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -108,7 +109,7 @@ export function AdministratorManager({ administrators }: { administrators: Row[]
               <div className="flex items-start gap-2">
                 <UserCog className="mt-0.5 size-4 shrink-0 text-accent" />
                 <div className="text-sm">
-                  <p className="font-medium">{a.name}</p>
+                  <Link href={`/administradores/${a.id}`} className="font-medium hover:text-accent">{a.name}</Link>
                   {(a.phone || a.email) && (
                     <p className="text-muted">{[a.phone, a.email].filter(Boolean).join(" · ")}</p>
                   )}

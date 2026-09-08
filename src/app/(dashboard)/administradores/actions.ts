@@ -43,6 +43,30 @@ export async function updateAdministrator(id: string, input: AdministratorInput)
   return { ok: true, id };
 }
 
+export async function assignClient(clientId: string, administratorId: string): Promise<ActionResult> {
+  const supabase = await requireAuth();
+  const { error } = await supabase
+    .from("clients")
+    .update({ administrator_id: administratorId })
+    .eq("id", clientId);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/administradores/${administratorId}`);
+  revalidatePath("/clientes");
+  return { ok: true };
+}
+
+export async function unassignClient(clientId: string, administratorId: string): Promise<ActionResult> {
+  const supabase = await requireAuth();
+  const { error } = await supabase
+    .from("clients")
+    .update({ administrator_id: null })
+    .eq("id", clientId);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/administradores/${administratorId}`);
+  revalidatePath("/clientes");
+  return { ok: true };
+}
+
 export async function deleteAdministrator(id: string): Promise<ActionResult> {
   const supabase = await requireAuth();
   // clients.administrator_id se pone en null automáticamente (on delete set null).

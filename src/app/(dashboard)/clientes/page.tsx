@@ -80,8 +80,8 @@ export default async function ClientesPage({
                 <TH>Nombre</TH>
                 <TH>Dirección</TH>
                 <TH>Teléfono</TH>
-                <TH>CUIT / DNI</TH>
                 <TH>Administrador</TH>
+                <TH>CUIT / DNI</TH>
                 <TH className="text-right">Presupuestos</TH>
               </TR>
             </THead>
@@ -95,8 +95,8 @@ export default async function ClientesPage({
                   </TD>
                   <TD>{formatAddresses(c.client_addresses as unknown as { label: string | null; address: string }[] | null)}</TD>
                   <TD>{c.phone ?? "—"}</TD>
-                  <TD>{c.tax_id ?? "—"}</TD>
                   <TD>{(c.administrator as unknown as { name: string } | null)?.name ?? "—"}</TD>
+                  <TD>{c.tax_id ?? "—"}</TD>
                   <TD className="text-right">
                     {(c.budgets as unknown as { count: number }[] | null)?.[0]?.count ?? 0}
                   </TD>
