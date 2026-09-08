@@ -56,7 +56,7 @@ export default async function ClienteDetailPage({
         title={clientFullName(client)}
         subtitle={client.company ?? undefined}
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Link href={`/clientes/${id}/editar`} className={buttonVariants({ variant: "outline", size: "sm" })}>
               <Pencil className="size-4" /> Editar
             </Link>

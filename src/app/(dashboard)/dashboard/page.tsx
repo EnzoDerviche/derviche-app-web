@@ -29,7 +29,7 @@ function Stat({
         </div>
         <div className="min-w-0">
           <p className="truncate text-sm text-muted">{label}</p>
-          <p className="text-xl font-bold">{value}</p>
+          <p className="break-words text-lg font-bold sm:text-xl">{value}</p>
         </div>
       </div>
     </Card>
@@ -55,7 +55,7 @@ export default async function DashboardPage() {
     <>
       <PageHeader title="Dashboard" subtitle="Resumen general de la actividad" />
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Stat label="Clientes" value={stats.total_clients} icon={Users} accent="bg-blue-100 text-blue-600" />
         <Stat label="Presupuestos" value={stats.total_budgets} icon={FileText} accent="bg-amber-100 text-amber-600" />
         <Stat label="Con saldo pendiente" value={stats.budgets_with_balance} icon={Clock} accent="bg-orange-100 text-orange-600" />
