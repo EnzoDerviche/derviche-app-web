@@ -87,6 +87,25 @@ export async function createAddress(
   return { ok: true };
 }
 
+export async function updateAddress(
+  addressId: string,
+  clientId: string,
+  input: AddressInput,
+): Promise<ActionResult> {
+  const parsed = addressSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Datos inválidos" };
+
+  const supabase = await requireAuth();
+  const { error } = await supabase
+    .from("client_addresses")
+    .update(parsed.data)
+    .eq("id", addressId);
+
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/clientes/${clientId}`);
+  return { ok: true };
+}
+
 export async function deleteAddress(
   addressId: string,
   clientId: string,

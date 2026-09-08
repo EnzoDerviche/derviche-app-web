@@ -33,7 +33,6 @@ export const clientSchema = z.object({
 export type ClientInput = z.infer<typeof clientSchema>;
 
 export const addressSchema = z.object({
-  label: optionalText,
   address: z.string().trim().min(1, "La dirección es obligatoria"),
   city: optionalText,
   province: optionalText,
