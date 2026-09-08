@@ -13,6 +13,8 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-stone-900 p-4">
       <div className="w-full max-w-sm rounded-lg bg-card p-8 shadow-lg">
         <div className="mb-6 text-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Derviche Construcciones" className="mx-auto mb-4 h-24 w-24 object-contain" />
           <h1 className="text-xl font-bold tracking-tight">
             DERVICHE <span className="text-accent">CONSTRUCCIONES</span>
           </h1>

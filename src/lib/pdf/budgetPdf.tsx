@@ -3,6 +3,7 @@ import {
   Page,
   View,
   Text,
+  Image,
   StyleSheet,
 } from "@react-pdf/renderer";
 import type { Budget, BudgetItem, Client, Payment, ClientAddress } from "@/types";
@@ -47,9 +48,10 @@ export interface BudgetPdfData {
   items: BudgetItem[];
   payments: Payment[];
   address?: ClientAddress | null;
+  logo?: string;
 }
 
-export function BudgetPdf({ budget, client, items, payments, address }: BudgetPdfData) {
+export function BudgetPdf({ budget, client, items, payments, address, logo }: BudgetPdfData) {
   const paid = payments.reduce((sum, p) => sum + Number(p.amount), 0);
   const balance = Math.max(0, Number(budget.total) - paid);
 
@@ -57,11 +59,15 @@ export function BudgetPdf({ budget, client, items, payments, address }: BudgetPd
     <Document title={budget.budget_number} author="Derviche Construcciones">
       <Page size="A4" style={s.page}>
         <View style={s.header}>
-          <View>
-            <Text style={s.brand}>
-              DERVICHE <Text style={s.brandAccent}>CONSTRUCCIONES</Text>
-            </Text>
-            <Text style={s.muted}>Presupuesto de obra</Text>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
+            {logo ? <Image src={logo} style={{ width: 48, height: 48, marginRight: 10 }} /> : null}
+            <View>
+              <Text style={s.brand}>
+                DERVICHE <Text style={s.brandAccent}>CONSTRUCCIONES</Text>
+              </Text>
+              <Text style={s.muted}>Presupuesto de obra</Text>
+            </View>
           </View>
           <View>
             <Text style={s.docTitle}>{budget.budget_number}</Text>

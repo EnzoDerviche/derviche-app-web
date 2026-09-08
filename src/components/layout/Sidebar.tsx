@@ -61,8 +61,10 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
     <>
       {/* Mobile top bar */}
       <div className="flex items-center justify-between border-b border-border bg-sidebar px-4 py-3 text-sidebar-foreground md:hidden">
-        <span className="font-bold text-sm">
-          DERVICHE <span className="text-accent">CONSTRUCCIONES</span>
+        <span className="flex items-center gap-2 font-bold text-sm">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="" className="size-8 rounded-full bg-white object-contain" />
+          <span>DERVICHE <span className="text-accent">CONSTRUCCIONES</span></span>
         </span>
         <button aria-label="Abrir menú" onClick={() => setOpen(true)}>
           <Menu className="size-5" />
@@ -71,8 +73,10 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
 
       {/* Desktop sidebar */}
       <aside className="hidden w-60 shrink-0 flex-col bg-sidebar md:flex">
-        <div className="p-4 text-sm font-bold text-sidebar-foreground">
-          DERVICHE <span className="text-accent">CONSTRUCCIONES</span>
+        <div className="flex items-center gap-2 p-4 text-sm font-bold text-sidebar-foreground">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="" className="size-9 rounded-full bg-white object-contain" />
+          <span>DERVICHE <span className="text-accent">CONSTRUCCIONES</span></span>
         </div>
         {nav}
         {footer}
@@ -84,7 +88,11 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
           <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
           <aside className="absolute left-0 top-0 flex h-full w-64 flex-col bg-sidebar">
             <div className="flex items-center justify-between p-4 text-sm font-bold text-sidebar-foreground">
-              <span>DERVICHE <span className="text-accent">CONSTRUCCIONES</span></span>
+              <span className="flex items-center gap-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo.png" alt="" className="size-8 rounded-full bg-white object-contain" />
+                <span>DERVICHE <span className="text-accent">CONSTRUCCIONES</span></span>
+              </span>
               <button aria-label="Cerrar menú" onClick={() => setOpen(false)}>
                 <X className="size-5" />
               </button>

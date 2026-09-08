@@ -8,8 +8,24 @@ import type { Budget, Client } from "@/types";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+async function loadLogo(req: Request): Promise<string | undefined> {
+  try {
+    const host = req.headers.get("host");
+    if (!host) return undefined;
+    const proto = req.headers.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+    const res = await fetch(`${proto}://${host}/logo.png`);
+    if (!res.ok) return undefined;
+    const buf = Buffer.from(await res.arrayBuffer());
+    // Sniff real format (the file may be a JPEG renamed .png).
+    const mime = buf[0] === 0xff && buf[1] === 0xd8 ? "image/jpeg" : "image/png";
+    return `data:${mime};base64,${buf.toString("base64")}`;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
@@ -38,8 +54,9 @@ export async function GET(
     ? await supabase.from("client_addresses").select("*").eq("id", budgetRow.address_id).single()
     : { data: null };
 
+  const logo = await loadLogo(req);
   const buffer = await renderToBuffer(
-    BudgetPdf({ budget: budgetRow, client, items: items ?? [], payments: payments ?? [], address }),
+    BudgetPdf({ budget: budgetRow, client, items: items ?? [], payments: payments ?? [], address, logo }),
   );
 
   return new NextResponse(new Uint8Array(buffer), {
