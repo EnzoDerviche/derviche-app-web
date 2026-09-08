@@ -38,21 +38,25 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
 
   const supabase = await createClient();
 
-  // Search across budget_number OR client fields (two-step to span the relation).
+  // Search across budget_number OR client fields OR address (two-step to span relations).
   let orClause = "";
   if (q) {
-    const clientFilter = orIlike(q, ["first_name", "last_name", "company", "tax_id", "phone"]);
-    const { data: matched } = await supabase.from("clients").select("id").or(clientFilter);
-    const ids = (matched ?? []).map((c) => c.id);
     const term = q.trim().replace(/[,()*%]/g, "");
-    orClause = ids.length
-      ? `budget_number.ilike.%${term}%,client_id.in.(${ids.join(",")})`
-      : `budget_number.ilike.%${term}%`;
+    const [{ data: matchedClients }, { data: matchedAddrs }] = await Promise.all([
+      supabase.from("clients").select("id").or(orIlike(q, ["first_name", "last_name", "company", "tax_id", "phone"])),
+      supabase.from("client_addresses").select("id").or(orIlike(q, ["label", "address", "city"])),
+    ]);
+    const clientIds = (matchedClients ?? []).map((c) => c.id);
+    const addrIds = (matchedAddrs ?? []).map((a) => a.id);
+    const parts = [`budget_number.ilike.%${term}%`];
+    if (clientIds.length) parts.push(`client_id.in.(${clientIds.join(",")})`);
+    if (addrIds.length) parts.push(`address_id.in.(${addrIds.join(",")})`);
+    orClause = parts.join(",");
   }
 
   let query = supabase
     .from("budgets")
-    .select("*, client:clients(*), payments(amount)", { count: "exact" })
+    .select("*, client:clients(*), payments(amount), address:client_addresses(label, address)", { count: "exact" })
     .order("created_at", { ascending: false })
     .range(from, from + PAGE_SIZE - 1);
 
@@ -65,7 +69,11 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
   if (sp.with_balance === "1") query = query.neq("payment_status", "fully_paid");
 
   const { data, count } = await query;
-  const budgets = (data ?? []) as unknown as (Budget & { client: Client; payments: Pick<Payment, "amount">[] })[];
+  const budgets = (data ?? []) as unknown as (Budget & {
+    client: Client;
+    payments: Pick<Payment, "amount">[];
+    address: { label: string | null; address: string } | null;
+  })[];
 
   const { data: clientsData } = await supabase
     .from("clients")
@@ -93,7 +101,7 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
 
       <div className="mb-4 space-y-3">
         <div className="max-w-md">
-          <SearchBar placeholder="Buscar por número, cliente, empresa, CUIT..." />
+          <SearchBar placeholder="Buscar por número, cliente, CUIT, dirección..." />
         </div>
         <BudgetFilters clients={clientOptions} />
       </div>
@@ -120,6 +128,7 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
               <TR>
                 <TH>Número</TH>
                 <TH>Cliente</TH>
+                <TH>Dirección</TH>
                 <TH>Fecha</TH>
                 <TH>Estado</TH>
                 <TH className="text-right">Total</TH>
@@ -138,6 +147,7 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
                       </Link>
                     </TD>
                     <TD>{clientFullName(b.client)}</TD>
+                    <TD>{b.address ? (b.address.label || b.address.address) : "—"}</TD>
                     <TD>{formatDate(b.created_at)}</TD>
                     <TD><StatusBadge status={b.status} /></TD>
                     <TD className="text-right">{formatCurrency(b.total)}</TD>
