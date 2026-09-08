@@ -9,6 +9,7 @@ import { createClientRecord, updateClientRecord } from "@/app/(dashboard)/client
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
 import type { Client } from "@/types";
@@ -23,7 +24,13 @@ const FIELDS: { name: keyof FormValues; label: string; type?: string }[] = [
   { name: "email", label: "Email", type: "email" },
 ];
 
-export function ClientForm({ client }: { client?: Client }) {
+export function ClientForm({
+  client,
+  administrators,
+}: {
+  client?: Client;
+  administrators: { id: string; name: string }[];
+}) {
   const router = useRouter();
   const {
     register,
@@ -43,6 +50,7 @@ export function ClientForm({ client }: { client?: Client }) {
           city: client.city ?? "",
           province: client.province ?? "",
           notes: client.notes ?? "",
+          administrator_id: client.administrator_id ?? "",
         }
       : undefined,
   });
@@ -74,6 +82,15 @@ export function ClientForm({ client }: { client?: Client }) {
             )}
           </div>
         ))}
+      </div>
+      <div className="max-w-sm">
+        <Label htmlFor="administrator_id">Administrador</Label>
+        <Select id="administrator_id" {...register("administrator_id")}>
+          <option value="">Sin administrador</option>
+          {administrators.map((a) => (
+            <option key={a.id} value={a.id}>{a.name}</option>
+          ))}
+        </Select>
       </div>
       <div>
         <Label htmlFor="notes">Notas</Label>

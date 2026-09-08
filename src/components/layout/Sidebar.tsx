@@ -3,13 +3,14 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, FileText, TrendingUp, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, Users, UserCog, FileText, TrendingUp, LogOut, Menu, X } from "lucide-react";
 import { logout } from "@/app/login/actions";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/clientes", label: "Clientes", icon: Users },
+  { href: "/administradores", label: "Administradores", icon: UserCog },
   { href: "/presupuestos", label: "Presupuestos", icon: FileText },
   { href: "/ganancias", label: "Ganancias", icon: TrendingUp },
 ];

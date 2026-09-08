@@ -10,14 +10,17 @@ export default async function EditarClientePage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
-  const { data: client } = await supabase.from("clients").select("*").eq("id", id).single();
+  const [{ data: client }, { data: administrators }] = await Promise.all([
+    supabase.from("clients").select("*").eq("id", id).single(),
+    supabase.from("administrators").select("id, name").order("name"),
+  ]);
 
   if (!client) notFound();
 
   return (
     <>
       <PageHeader title="Editar cliente" />
-      <ClientForm client={client} />
+      <ClientForm client={client} administrators={administrators ?? []} />
     </>
   );
 }

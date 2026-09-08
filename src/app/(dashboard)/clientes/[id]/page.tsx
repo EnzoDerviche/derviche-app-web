@@ -33,7 +33,11 @@ export default async function ClienteDetailPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: client } = await supabase.from("clients").select("*").eq("id", id).single();
+  const { data: client } = await supabase
+    .from("clients")
+    .select("*, administrator:administrators(name)")
+    .eq("id", id)
+    .single();
   if (!client) notFound();
 
   const { data: addressesData } = await supabase
@@ -77,6 +81,7 @@ export default async function ClienteDetailPage({
             <Field label="DNI / CUIT" value={client.tax_id} />
             <Field label="Teléfono" value={client.phone} />
             <Field label="Email" value={client.email} />
+            <Field label="Administrador" value={(client.administrator as unknown as { name: string } | null)?.name ?? null} />
             <div className="sm:col-span-2 lg:col-span-3">
               <Field label="Notas" value={client.notes} />
             </div>

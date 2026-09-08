@@ -1,4 +1,4 @@
-import type { Client, Budget, BudgetItem, Payment, ClientAddress } from "@/types";
+import type { Client, Budget, BudgetItem, Payment, ClientAddress, Administrator } from "@/types";
 
 // Hand-authored to match supabase/migrations. Regenerate with the Supabase CLI
 // (`supabase gen types typescript`) if the schema grows. Shape follows
@@ -39,6 +39,12 @@ export interface Database {
         Row: ClientAddress;
         Insert: Insert<ClientAddress, "client_id" | "address">;
         Update: Partial<ClientAddress>;
+        Relationships: [];
+      };
+      administrators: {
+        Row: Administrator;
+        Insert: Insert<Administrator, "name">;
+        Update: Partial<Administrator>;
         Relationships: [];
       };
     };

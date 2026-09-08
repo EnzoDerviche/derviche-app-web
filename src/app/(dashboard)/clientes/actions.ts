@@ -22,7 +22,7 @@ export async function createClientRecord(input: ClientInput): Promise<ActionResu
   const supabase = await requireAuth();
   const { data, error } = await supabase
     .from("clients")
-    .insert(parsed.data)
+    .insert({ ...parsed.data, administrator_id: parsed.data.administrator_id ?? null })
     .select("id")
     .single();
 
@@ -39,7 +39,10 @@ export async function updateClientRecord(
   if (!parsed.success) return { ok: false, error: "Datos inválidos" };
 
   const supabase = await requireAuth();
-  const { error } = await supabase.from("clients").update(parsed.data).eq("id", id);
+  const { error } = await supabase
+    .from("clients")
+    .update({ ...parsed.data, administrator_id: parsed.data.administrator_id ?? null })
+    .eq("id", id);
 
   if (error) return { ok: false, error: error.message };
   revalidatePath("/clientes");

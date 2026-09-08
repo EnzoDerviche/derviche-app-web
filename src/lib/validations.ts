@@ -28,9 +28,25 @@ export const clientSchema = z.object({
   city: optionalText,
   province: optionalText,
   notes: optionalText,
+  administrator_id: optionalText,
 });
 
 export type ClientInput = z.infer<typeof clientSchema>;
+
+export const administratorSchema = z.object({
+  name: z.string().trim().min(1, "El nombre es obligatorio"),
+  phone: optionalText,
+  email: z
+    .string()
+    .trim()
+    .email("Email inválido")
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => (v ? v : undefined)),
+  notes: optionalText,
+});
+
+export type AdministratorInput = z.infer<typeof administratorSchema>;
 
 export const addressSchema = z.object({
   address: z.string().trim().min(1, "La dirección es obligatoria"),
