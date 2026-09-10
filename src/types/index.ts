@@ -19,6 +19,7 @@ export type Client = {
   province: string | null;
   notes: string | null;
   is_demo: boolean;
+  is_prospect: boolean;
   administrator_id: string | null;
   created_at: string;
   updated_at: string;

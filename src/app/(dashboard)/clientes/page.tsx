@@ -36,6 +36,7 @@ export default async function ClientesPage({
   let query = supabase
     .from("clients")
     .select("*, budgets(count), client_addresses(label, address), administrator:administrators(name)", { count: "exact" })
+    .eq("is_prospect", false)
     .order("created_at", { ascending: false })
     .range(from, from + PAGE_SIZE - 1);
 

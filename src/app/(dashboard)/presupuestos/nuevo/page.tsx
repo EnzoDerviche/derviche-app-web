@@ -14,7 +14,7 @@ export default async function NuevoPresupuestoPage({
   const { cliente } = await searchParams;
   const supabase = await createClient();
   const [{ data }, { data: addressesData }] = await Promise.all([
-    supabase.from("clients").select("id, first_name, last_name, company").order("first_name"),
+    supabase.from("clients").select("id, first_name, last_name, company").eq("is_prospect", false).order("first_name"),
     supabase.from("client_addresses").select("id, client_id, label, address").order("created_at"),
   ]);
 

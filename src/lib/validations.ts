@@ -67,17 +67,32 @@ export const budgetItemSchema = z.object({
 
 export type BudgetItemInput = z.infer<typeof budgetItemSchema>;
 
-export const budgetSchema = z.object({
-  client_id: z.string().uuid("Seleccioná un cliente"),
-  address_id: optionalText,
-  status: z.enum(BUDGET_STATUSES).default("sent"),
-  discount: z.coerce.number().min(0).default(0),
-  tax_rate: z.coerce.number().min(0).default(0),
-  notes: optionalText,
-  sent_at: optionalText,
-  accepted_at: optionalText,
-  items: z.array(budgetItemSchema).min(1, "Agregá al menos un item"),
-});
+export const budgetSchema = z
+  .object({
+    client_id: z.string().optional().transform((v) => (v ? v : undefined)),
+    // Prospecto: cliente no registrado para el que se hace el presupuesto.
+    new_client_first_name: optionalText,
+    new_client_last_name: optionalText,
+    new_client_phone: optionalText,
+    new_client_tax_id: optionalText,
+    address_id: optionalText,
+    status: z.enum(BUDGET_STATUSES).default("sent"),
+    discount: z.coerce.number().min(0).default(0),
+    tax_rate: z.coerce.number().min(0).default(0),
+    notes: optionalText,
+    sent_at: optionalText,
+    accepted_at: optionalText,
+    items: z.array(budgetItemSchema).min(1, "Agregá al menos un item"),
+  })
+  .superRefine((d, ctx) => {
+    if (!d.client_id && !d.new_client_first_name) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Seleccioná un cliente o cargá uno nuevo",
+        path: ["client_id"],
+      });
+    }
+  });
 
 export type BudgetInput = z.infer<typeof budgetSchema>;
 

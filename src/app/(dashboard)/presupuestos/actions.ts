@@ -41,10 +41,29 @@ export async function createBudget(input: BudgetInput): Promise<ActionResult> {
   if (!parsed.success) return { ok: false, error: "Datos inválidos" };
 
   const supabase = await requireAuth();
+
+  // Sin cliente elegido → crear un prospecto (queda oculto hasta aprobarlo).
+  let clientId = parsed.data.client_id;
+  if (!clientId) {
+    const { data: prospect, error: pErr } = await supabase
+      .from("clients")
+      .insert({
+        first_name: parsed.data.new_client_first_name ?? "Sin nombre",
+        last_name: parsed.data.new_client_last_name ?? "",
+        phone: parsed.data.new_client_phone ?? null,
+        tax_id: parsed.data.new_client_tax_id ?? null,
+        is_prospect: true,
+      })
+      .select("id")
+      .single();
+    if (pErr) return { ok: false, error: pErr.message };
+    clientId = prospect.id;
+  }
+
   const { totals, items } = buildTotals(parsed.data);
 
   const { data, error } = await supabase.rpc("create_budget", {
-    p_client_id: parsed.data.client_id,
+    p_client_id: clientId,
     p_status: parsed.data.status,
     p_subtotal: totals.subtotal,
     p_discount: totals.discount,
@@ -71,6 +90,8 @@ export async function updateBudget(id: string, input: BudgetInput): Promise<Acti
   const parsed = budgetSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Datos inválidos" };
 
+  if (!parsed.data.client_id) return { ok: false, error: "Falta el cliente" };
+
   const supabase = await requireAuth();
   const { totals, items } = buildTotals(parsed.data);
 
@@ -95,6 +116,28 @@ export async function updateBudget(id: string, input: BudgetInput): Promise<Acti
   revalidatePath("/presupuestos");
   revalidatePath(`/presupuestos/${id}`);
   return { ok: true, id };
+}
+
+/** Aprueba el presupuesto de un prospecto: lo registra como cliente. */
+export async function approveBudgetClient(budgetId: string): Promise<ActionResult> {
+  const supabase = await requireAuth();
+  const { data: budget } = await supabase
+    .from("budgets")
+    .select("client_id")
+    .eq("id", budgetId)
+    .single();
+  if (!budget?.client_id) return { ok: false, error: "Presupuesto sin cliente" };
+
+  const { error } = await supabase
+    .from("clients")
+    .update({ is_prospect: false })
+    .eq("id", budget.client_id);
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath(`/presupuestos/${budgetId}`);
+  revalidatePath("/clientes");
+  revalidatePath("/dashboard");
+  return { ok: true };
 }
 
 export async function deleteBudget(id: string): Promise<ActionResult> {

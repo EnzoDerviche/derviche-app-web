@@ -78,6 +78,10 @@ export function BudgetForm({ clients, addressesByClient, budget, items, defaultC
     resolver: zodResolver(budgetSchema),
     defaultValues: {
       client_id: budget?.client_id ?? defaultClientId ?? "",
+      new_client_first_name: "",
+      new_client_last_name: "",
+      new_client_phone: "",
+      new_client_tax_id: "",
       address_id: budget?.address_id ?? "",
       status: budget?.status ?? "sent",
       discount: budget?.discount ?? 0,
@@ -103,6 +107,8 @@ export function BudgetForm({ clients, addressesByClient, budget, items, defaultC
   const { fields, append, remove, move } = useFieldArray({ control, name: "items" });
   const [showDiscount, setShowDiscount] = useState(!!(budget && budget.discount > 0));
   const [showTax, setShowTax] = useState(!!(budget && budget.tax > 0));
+  // Solo en presupuestos nuevos: cargar un cliente no registrado (prospecto).
+  const [newClient, setNewClient] = useState(false);
   const selectedClientId = useWatch({ control, name: "client_id" }) as string;
   const addresses = addressesByClient[selectedClientId] ?? [];
 
@@ -124,17 +130,62 @@ export function BudgetForm({ clients, addressesByClient, budget, items, defaultC
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Card>
         <CardContent className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <Label htmlFor="client_id">Cliente *</Label>
-            <Select id="client_id" {...register("client_id")}>
-              <option value="">Seleccionar cliente...</option>
-              {clients.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.label}
-                </option>
-              ))}
-            </Select>
-            {errors.client_id && <p className="mt-1 text-xs text-red-600">{errors.client_id.message}</p>}
+          <div className="sm:col-span-2">
+            {!budget && (
+              <label className="mb-2 flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  className="size-4"
+                  checked={newClient}
+                  onChange={(e) => {
+                    setNewClient(e.target.checked);
+                    if (e.target.checked) setValue("client_id", "");
+                    else {
+                      setValue("new_client_first_name", "");
+                      setValue("new_client_last_name", "");
+                      setValue("new_client_phone", "");
+                      setValue("new_client_tax_id", "");
+                    }
+                  }}
+                />
+                Cliente no registrado (se registra al aprobar el presupuesto)
+              </label>
+            )}
+
+            {newClient ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="new_client_first_name">Nombre *</Label>
+                  <Input id="new_client_first_name" {...register("new_client_first_name")} />
+                  {errors.client_id && <p className="mt-1 text-xs text-red-600">{errors.client_id.message}</p>}
+                </div>
+                <div>
+                  <Label htmlFor="new_client_last_name">Apellido</Label>
+                  <Input id="new_client_last_name" {...register("new_client_last_name")} />
+                </div>
+                <div>
+                  <Label htmlFor="new_client_phone">Teléfono</Label>
+                  <Input id="new_client_phone" {...register("new_client_phone")} />
+                </div>
+                <div>
+                  <Label htmlFor="new_client_tax_id">DNI / CUIT</Label>
+                  <Input id="new_client_tax_id" {...register("new_client_tax_id")} />
+                </div>
+              </div>
+            ) : (
+              <div>
+                <Label htmlFor="client_id">Cliente *</Label>
+                <Select id="client_id" {...register("client_id")}>
+                  <option value="">Seleccionar cliente...</option>
+                  {clients.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.label}
+                    </option>
+                  ))}
+                </Select>
+                {errors.client_id && <p className="mt-1 text-xs text-red-600">{errors.client_id.message}</p>}
+              </div>
+            )}
           </div>
           <div>
             <Label htmlFor="address_id">Dirección</Label>

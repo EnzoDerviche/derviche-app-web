@@ -10,6 +10,7 @@ import { StatusBadge } from "@/components/common/StatusBadge";
 import { StatusChanger } from "@/components/budgets/StatusChanger";
 import { PdfActions } from "@/components/budgets/PdfActions";
 import { DeleteBudgetButton, DeletePaymentButton } from "@/components/budgets/BudgetActions";
+import { ApproveClientButton } from "@/components/budgets/ApproveClientButton";
 import { PaymentForm } from "@/components/payments/PaymentForm";
 import { formatCurrency, formatDate, clientFullName } from "@/lib/format";
 import { calculateBalance } from "@/lib/calculations";
@@ -68,6 +69,15 @@ export default async function PresupuestoDetailPage({
       <div className="mb-6 flex flex-wrap gap-2">
         <StatusBadge status={budget.status} />
       </div>
+
+      {client.is_prospect && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
+          <p className="text-sm text-amber-800">
+            <strong>Cliente no registrado.</strong> Este presupuesto es para un prospecto. Al aprobarlo se registra como cliente.
+          </p>
+          <ApproveClientButton budgetId={id} />
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">

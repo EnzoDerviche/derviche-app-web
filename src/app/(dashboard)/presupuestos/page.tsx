@@ -146,7 +146,10 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
                         {b.budget_number}
                       </Link>
                     </TD>
-                    <TD>{clientFullName(b.client)}</TD>
+                    <TD>
+                      {clientFullName(b.client)}
+                      {b.client.is_prospect && <span className="ml-1 text-xs text-amber-600">(no registrado)</span>}
+                    </TD>
                     <TD>{b.address ? (b.address.label || b.address.address) : "—"}</TD>
                     <TD>{formatDate(b.created_at)}</TD>
                     <TD><StatusBadge status={b.status} /></TD>
