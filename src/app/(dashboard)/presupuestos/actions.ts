@@ -44,6 +44,7 @@ export async function createBudget(input: BudgetInput): Promise<ActionResult> {
 
   // Sin cliente elegido → crear un prospecto (queda oculto hasta aprobarlo).
   let clientId = parsed.data.client_id;
+  let addressId = parsed.data.address_id;
   if (!clientId) {
     const { data: prospect, error: pErr } = await supabase
       .from("clients")
@@ -58,6 +59,16 @@ export async function createBudget(input: BudgetInput): Promise<ActionResult> {
       .single();
     if (pErr) return { ok: false, error: pErr.message };
     clientId = prospect.id;
+
+    // Dirección cargada a mano para el prospecto → se guarda como su dirección.
+    if (parsed.data.new_client_address) {
+      const { data: addr } = await supabase
+        .from("client_addresses")
+        .insert({ client_id: clientId, address: parsed.data.new_client_address })
+        .select("id")
+        .single();
+      addressId = addr?.id;
+    }
   }
 
   const { totals, items } = buildTotals(parsed.data);
@@ -78,8 +89,8 @@ export async function createBudget(input: BudgetInput): Promise<ActionResult> {
   if (error) return { ok: false, error: error.message };
 
   const newId = data as string;
-  if (parsed.data.address_id) {
-    await supabase.from("budgets").update({ address_id: parsed.data.address_id }).eq("id", newId);
+  if (addressId) {
+    await supabase.from("budgets").update({ address_id: addressId }).eq("id", newId);
   }
 
   revalidatePath("/presupuestos");

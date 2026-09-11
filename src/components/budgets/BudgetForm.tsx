@@ -82,6 +82,7 @@ export function BudgetForm({ clients, addressesByClient, budget, items, defaultC
       new_client_last_name: "",
       new_client_phone: "",
       new_client_tax_id: "",
+      new_client_address: "",
       address_id: budget?.address_id ?? "",
       status: budget?.status ?? "sent",
       discount: budget?.discount ?? 0,
@@ -145,6 +146,7 @@ export function BudgetForm({ clients, addressesByClient, budget, items, defaultC
                       setValue("new_client_last_name", "");
                       setValue("new_client_phone", "");
                       setValue("new_client_tax_id", "");
+                      setValue("new_client_address", "");
                     }
                   }}
                 />
@@ -189,14 +191,18 @@ export function BudgetForm({ clients, addressesByClient, budget, items, defaultC
           </div>
           <div>
             <Label htmlFor="address_id">Dirección</Label>
-            <Select id="address_id" {...register("address_id")} disabled={addresses.length === 0}>
-              <option value="">
-                {addresses.length === 0 ? "El cliente no tiene direcciones" : "Sin dirección específica"}
-              </option>
-              {addresses.map((a) => (
-                <option key={a.id} value={a.id}>{a.label}</option>
-              ))}
-            </Select>
+            {newClient ? (
+              <Input id="new_client_address" placeholder="Calle y número" {...register("new_client_address")} />
+            ) : (
+              <Select id="address_id" {...register("address_id")} disabled={addresses.length === 0}>
+                <option value="">
+                  {addresses.length === 0 ? "El cliente no tiene direcciones" : "Sin dirección específica"}
+                </option>
+                {addresses.map((a) => (
+                  <option key={a.id} value={a.id}>{a.label}</option>
+                ))}
+              </Select>
+            )}
           </div>
           <div>
             <Label htmlFor="status">Estado</Label>
