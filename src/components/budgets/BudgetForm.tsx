@@ -25,6 +25,7 @@ type FormValues = z.input<typeof budgetSchema>;
 interface Props {
   clients: { id: string; label: string }[];
   addressesByClient: Record<string, { id: string; label: string }[]>;
+  administrators: { id: string; name: string }[];
   budget?: Budget;
   items?: BudgetItem[];
   defaultClientId?: string;
@@ -66,7 +67,7 @@ function Row({ label, value, bold }: { label: string; value: string; bold?: bool
   );
 }
 
-export function BudgetForm({ clients, addressesByClient, budget, items, defaultClientId }: Props) {
+export function BudgetForm({ clients, addressesByClient, administrators, budget, items, defaultClientId }: Props) {
   const router = useRouter();
   const {
     register,
@@ -83,6 +84,7 @@ export function BudgetForm({ clients, addressesByClient, budget, items, defaultC
       new_client_phone: "",
       new_client_tax_id: "",
       new_client_address: "",
+      new_client_administrator_id: "",
       address_id: budget?.address_id ?? "",
       status: budget?.status ?? "sent",
       discount: budget?.discount ?? 0,
@@ -147,6 +149,7 @@ export function BudgetForm({ clients, addressesByClient, budget, items, defaultC
                       setValue("new_client_phone", "");
                       setValue("new_client_tax_id", "");
                       setValue("new_client_address", "");
+                      setValue("new_client_administrator_id", "");
                     }
                   }}
                 />
@@ -172,6 +175,15 @@ export function BudgetForm({ clients, addressesByClient, budget, items, defaultC
                 <div>
                   <Label htmlFor="new_client_tax_id">DNI / CUIT</Label>
                   <Input id="new_client_tax_id" {...register("new_client_tax_id")} />
+                </div>
+                <div>
+                  <Label htmlFor="new_client_administrator_id">Administrador</Label>
+                  <Select id="new_client_administrator_id" {...register("new_client_administrator_id")}>
+                    <option value="">Sin administrador</option>
+                    {administrators.map((a) => (
+                      <option key={a.id} value={a.id}>{a.name}</option>
+                    ))}
+                  </Select>
                 </div>
               </div>
             ) : (

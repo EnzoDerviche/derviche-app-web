@@ -13,9 +13,10 @@ export default async function NuevoPresupuestoPage({
 }) {
   const { cliente } = await searchParams;
   const supabase = await createClient();
-  const [{ data }, { data: addressesData }] = await Promise.all([
+  const [{ data }, { data: addressesData }, { data: adminsData }] = await Promise.all([
     supabase.from("clients").select("id, first_name, last_name, company").eq("is_prospect", false).order("first_name"),
     supabase.from("client_addresses").select("id, client_id, label, address").order("created_at"),
+    supabase.from("administrators").select("id, name").order("name"),
   ]);
 
   const clients = (data ?? []).map((c) => ({
@@ -27,7 +28,12 @@ export default async function NuevoPresupuestoPage({
   return (
     <>
       <PageHeader title="Nuevo presupuesto" />
-      <BudgetForm clients={clients} addressesByClient={addressesByClient} defaultClientId={cliente} />
+      <BudgetForm
+        clients={clients}
+        addressesByClient={addressesByClient}
+        administrators={adminsData ?? []}
+        defaultClientId={cliente}
+      />
     </>
   );
 }

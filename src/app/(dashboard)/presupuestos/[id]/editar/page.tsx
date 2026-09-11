@@ -37,7 +37,7 @@ export default async function EditarPresupuestoPage({
   return (
     <>
       <PageHeader title={`Editar ${budget.budget_number}`} />
-      <BudgetForm clients={clients} addressesByClient={addressesByClient} budget={budget} items={itemsData ?? []} />
+      <BudgetForm clients={clients} addressesByClient={addressesByClient} administrators={[]} budget={budget} items={itemsData ?? []} />
     </>
   );
 }

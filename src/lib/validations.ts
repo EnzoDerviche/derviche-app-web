@@ -76,6 +76,7 @@ export const budgetSchema = z
     new_client_phone: optionalText,
     new_client_tax_id: optionalText,
     new_client_address: optionalText,
+    new_client_administrator_id: optionalText,
     address_id: optionalText,
     status: z.enum(BUDGET_STATUSES).default("sent"),
     discount: z.coerce.number().min(0).default(0),

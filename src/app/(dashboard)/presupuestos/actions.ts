@@ -53,6 +53,7 @@ export async function createBudget(input: BudgetInput): Promise<ActionResult> {
         last_name: parsed.data.new_client_last_name ?? "",
         phone: parsed.data.new_client_phone ?? null,
         tax_id: parsed.data.new_client_tax_id ?? null,
+        administrator_id: parsed.data.new_client_administrator_id ?? null,
         is_prospect: true,
       })
       .select("id")
