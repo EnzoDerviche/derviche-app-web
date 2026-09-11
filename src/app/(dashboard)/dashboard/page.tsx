@@ -83,8 +83,10 @@ export default async function DashboardPage() {
 function accentBorder(s: BudgetStatus): string {
   const map: Record<BudgetStatus, string> = {
     sent: "border-l-blue-400",
+    approved: "border-l-green-500",
+    rejected: "border-l-red-500",
     partial_paid: "border-l-amber-400",
-    paid: "border-l-green-500",
+    paid: "border-l-emerald-600",
   };
   return map[s];
 }

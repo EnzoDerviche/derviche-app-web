@@ -30,7 +30,7 @@ create table if not exists public.budgets (
   accepted_at timestamptz,
   paid_at timestamptz,
   status text not null default 'sent'
-    check (status in ('sent','partial_paid','paid')),
+    check (status in ('sent','approved','rejected','partial_paid','paid')),
   payment_status text not null default 'unpaid'
     check (payment_status in ('unpaid','advance_received','partially_paid','fully_paid')),
   subtotal numeric(14,2) not null default 0 check (subtotal >= 0),

@@ -118,28 +118,6 @@ export async function updateBudget(id: string, input: BudgetInput): Promise<Acti
   return { ok: true, id };
 }
 
-/** Aprueba el presupuesto de un prospecto: lo registra como cliente. */
-export async function approveBudgetClient(budgetId: string): Promise<ActionResult> {
-  const supabase = await requireAuth();
-  const { data: budget } = await supabase
-    .from("budgets")
-    .select("client_id")
-    .eq("id", budgetId)
-    .single();
-  if (!budget?.client_id) return { ok: false, error: "Presupuesto sin cliente" };
-
-  const { error } = await supabase
-    .from("clients")
-    .update({ is_prospect: false })
-    .eq("id", budget.client_id);
-  if (error) return { ok: false, error: error.message };
-
-  revalidatePath(`/presupuestos/${budgetId}`);
-  revalidatePath("/clientes");
-  revalidatePath("/dashboard");
-  return { ok: true };
-}
-
 export async function deleteBudget(id: string): Promise<ActionResult> {
   const supabase = await requireAuth();
   const { error } = await supabase.from("budgets").delete().eq("id", id);
@@ -187,7 +165,7 @@ export async function changeBudgetStatus(
 
   const { data: current } = await supabase
     .from("budgets")
-    .select("sent_at")
+    .select("sent_at, client_id")
     .eq("id", id)
     .single();
 
@@ -197,6 +175,14 @@ export async function changeBudgetStatus(
 
   const { error } = await supabase.from("budgets").update(patch).eq("id", id);
   if (error) return { ok: false, error: error.message };
+
+  // Al aprobar, un prospecto se registra como cliente.
+  if (status === "approved" && current?.client_id) {
+    await supabase.from("clients").update({ is_prospect: false }).eq("id", current.client_id);
+    revalidatePath("/clientes");
+    revalidatePath("/dashboard");
+  }
+
   revalidatePath(`/presupuestos/${id}`);
   revalidatePath("/presupuestos");
   return { ok: true };
